@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For My Love ❤️</title>
+
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background: radial-gradient(circle,#200020,#000);
+    font-family:Segoe UI;
+}
+
+#title{
+    position:absolute;
+    top:20px;
+    width:100%;
+    text-align:center;
+    color:white;
+    font-size:30px;
+    text-shadow:0 0 25px #ff4da6;
+    z-index:10;
+}
+
+#loveLetter{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    width:350px;
+    text-align:center;
+    box-shadow:0 0 40px pink;
+    transition:0.5s;
+    z-index:20;
+}
+
+#closeBtn{
+    margin-top:15px;
+    padding:8px 15px;
+    border:none;
+    background:#ff3366;
+    color:white;
+    border-radius:10px;
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div id="title">Happy Valentine My Love ❤️</div>
+
+<div id="loveLetter">
+<h2>My Mishouu 💌</h2>
+<p>
+You are my happiness, my peace and my forever.
+I love you more than words can explain ❤️
+</p>
+<button id="closeBtn">Close</button>
+</div>
+
+<audio id="bgMusic" src="music.mp3" loop></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.set(0,3,12);
+
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.shadowMap.enabled=true;
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffcce6,0.8));
+
+let light = new THREE.PointLight(0xff66b2,2);
+light.position.set(0,8,8);
+scene.add(light);
+
+let tableGeo = new THREE.CylinderGeometry(5,5,0.5,64);
+let tableMat = new THREE.MeshStandardMaterial({color:0x5c2d00});
+let table = new THREE.Mesh(tableGeo,tableMat);
+table.position.y=-2;
+scene.add(table);
+
+let heartShape = new THREE.Shape();
+
+let firstPoint = true;
+
+for (let t = 0; t <= Math.PI * 2; t += 0.02) {
+
+    let x = 16 * Math.pow(Math.sin(t), 3);
+    let y = 13 * Math.cos(t)
+          - 5 * Math.cos(2 * t)
+          - 2 * Math.cos(3 * t)
+          - Math.cos(4 * t);
+
+    // scale it down
+    x *= 0.08;
+    y *= 0.08;
+
+    if (firstPoint) {
+        heartShape.moveTo(x, y);
+        firstPoint = false;
+    } else {
+        heartShape.lineTo(x, y);
+    }
+}
+
+let cakeGeo = new THREE.ExtrudeGeometry(heartShape, {
+    depth: 1.2,
+    bevelEnabled: true,
+    bevelThickness: 0.2,
+    bevelSize: 0.2,
+    bevelSegments: 5,
+    curveSegments: 64
+});
+
+cakeGeo.center();
+
+let cakeMat = new THREE.MeshStandardMaterial({
+    color: 0xff2e63,
+    roughness: 0.35,
+    metalness: 0.1
+});
+
+let cake = new THREE.Mesh(cakeGeo, cakeMat);
+cake.scale.set(1.2, 1.2, 1.2);
+cake.position.set(0, -0.2, 0);
+cake.castShadow = true;
+
+scene.add(cake);
+
+let loader = new THREE.TextureLoader();
+
+let texture1 = loader.load("photo1.jpg",undefined,undefined,
+()=>{ alert("ti win el tsawir win"); });
+
+let texture2 = loader.load("photo2.jpg");
+
+let photoGeo = new THREE.PlaneGeometry(4,5);
+
+let frame1 = new THREE.Mesh(photoGeo,new THREE.MeshBasicMaterial({
+    map:texture1,
+    side:THREE.DoubleSide
+}));
+
+let frame2 = new THREE.Mesh(photoGeo,new THREE.MeshBasicMaterial({
+    map:texture2,
+    side:THREE.DoubleSide
+}));
+
+frame1.position.set(-7,1,0);
+frame2.position.set(7,1,0);
+
+scene.add(frame1);
+scene.add(frame2);
+
+// khobzet el gatou
+let hearts=[];
+for(let i=0;i<100;i++){
+    let g=new THREE.SphereGeometry(0.08,8,8);
+    let m=new THREE.MeshBasicMaterial({color:0xff66b2});
+    let h=new THREE.Mesh(g,m);
+    h.position.set((Math.random()-0.5)*20,Math.random()*15,(Math.random()-0.5)*20);
+    scene.add(h);
+    hearts.push(h);
+}
+
+// el mousawra
+let angle=0;
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    angle+=0.002;
+    camera.position.x=Math.sin(angle)*12;
+    camera.position.z=Math.cos(angle)*12;
+    camera.lookAt(0,0,0);
+
+    cake.rotation.y+=0.01;
+
+    hearts.forEach(h=>{
+        h.position.y+=0.02;
+        if(h.position.y>15) h.position.y=0;
+    });
+
+    renderer.render(scene,camera);
+}
+animate();
+
+// message
+let letter=document.getElementById("loveLetter");
+let music=document.getElementById("bgMusic");
+let opened=false;
+
+window.addEventListener("click",(e)=>{
+    if(e.target.id==="closeBtn") return;
+
+    if(!opened){
+        music.play();
+        letter.style.transform="translate(-50%,-50%) scale(1)";
+        opened=true;
+    }
+});
+
+document.getElementById("closeBtn").addEventListener("click",(e)=>{
+    e.stopPropagation();
+    letter.style.transform="translate(-50%,-50%) scale(0)";
+});
+
+window.addEventListener("resize",()=>{
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+</script>
+</body>
+</html>
